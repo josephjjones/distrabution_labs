@@ -1,0 +1,5 @@
+1) What is the URL of my hello_world ruleset.
+	file:///mnt/c/Users/jjjso/Documents/School/CS_462/Lab0/hello_rules.krl
+2) What error?
+	Error: No possible parsings :20:8 rule hello_world { ^
+3) Port 8080

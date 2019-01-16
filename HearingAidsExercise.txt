@@ -1,0 +1,7 @@
+Joseph Jones
+Nathan Shurtz
+
+1) Two devices cooperating to perform a single task
+2) They could be decentralized since they both take input and produce output seprately.
+	But the design could have a single central proccess that determines what to output.
+3) Latency between the times that the two hearing aids hear a sound, and latency between hearing and amplification
