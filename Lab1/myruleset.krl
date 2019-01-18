@@ -1,7 +1,8 @@
-ruleset journal_app { 
+ruleset lab_one{ 
   meta{
     author "Joseph Jones"
-    share getEntries
+    shares getEntries
+    shares hello
   }
 
   global{
@@ -10,15 +11,23 @@ ruleset journal_app {
     getEntries = function(){
       ent:entries.defaultsTo([])
     }
+
+    hello = function(nam){
+        msg = "Hello " + nam + "!";
+        msg
+    }
     
   }
-  
-  /*
-  {
-    "text" : <string>
-    ...
+
+  rule hello_world{
+    select when echo hello
+    pre{
+        nam = event:attr("name")
+        nam = nam => nam | "World";
+    }
+    send_directive("say", {"something": hello(nam)})
   }
-  */
+    
   
   rule createEntry{
     select when journal new_entry
