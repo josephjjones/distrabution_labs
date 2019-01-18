@@ -1,4 +1,4 @@
-ruleset journal_app {
+ruleset journal_app { 
   meta{
     author "Joseph Jones"
     share getEntries
