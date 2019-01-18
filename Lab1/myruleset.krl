@@ -3,6 +3,7 @@ ruleset journal_app {
     author "Joseph Jones"
     share getEntries
   }
+
   global{
     //Things defined here are static/cannot be mutated
     my_name = "Joseph J Jones"
