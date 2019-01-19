@@ -11,7 +11,7 @@ ruleset lab_one{
 
     hello = function(nam){
         msg = "Hello " + nam + "!";
-        msgl
+        msg
     }
     
   }
