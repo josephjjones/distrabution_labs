@@ -1,7 +1,11 @@
+Code can be found at https://raw.githubusercontent.com/josephjjones/distrabution_labs/master/Lab1/myruleset.krl
+
+3 --> answers to questions
 1) Both responses look the same, the only thing that changed was the txd_id. This is likely because both channel have the same permissions.
 
 2) I get the respnse ("error": "ECI not found:) This is because the channel ID no longer has a valid channel accociated with it.
 
 3) I recieve an empty array under directives as a JSON object. This is because it was unable to find an event for ecco/hello.
 
+4&5) See video
 
