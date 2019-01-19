@@ -28,8 +28,8 @@ ruleset lab_one{
   rule hello_monkey{
     select when echo monkey
     pre{
-        nam = event:attr("name").defaultsTo("Monkey").klog("Name is ")
-        //nam = nam => nam | "Monkey";
+        //nam = event:attr("name").defaultsTo("Monkey").klog("Name is ")
+        nam = (event:attr("name") => event:attr("name") | "Monkey").klog("Name is")
     }
     send_directive("say", {"something": hello(nam)})
   }
