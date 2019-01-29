@@ -24,11 +24,12 @@ ruleset twilio.methods{
 
     get_sms = function(from, to, page, page_size, page_uri){
         base_url = <<https://#{account_sid}:#{auth_token}@api.twilio.com/2010-04-01/Accounts/#{account_sid}/Messages.json>>;
-        extra =  ("?" + (to => "To="+to+"&" | "") + 
-                     (from => "From="+from+"&" | "") + 
-                     (page_size => "PageSize="+page_size+"&" | "") + 
-                     (page => "Page="+page+"&" | "") + 
-                     (page_uri => "PageToken="+page_uri | ""));
+        extra = "";
+        extra = (to => "?To="+to | extra);
+        extra = (from => (extra => "&"|"?")+"From="+from | extra);
+        extra = (page_size => (extra => "&"|"?")+"PageSize="+from | extra);
+        extra = (page => (extra => "&"|"?")+"Page="+from | extra);
+        extra = (page_uri => (extra => "&"|"?")+"PageToken="+from | extra).klog("Extra: ");
         http:get(base_url+extra)
     }
     
