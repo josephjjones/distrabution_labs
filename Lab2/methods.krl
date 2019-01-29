@@ -34,7 +34,7 @@ ruleset twilio.methods{
     rule finish_send_sms{
         select when http post label re#finish_send#
         //page information
-        send_directive("content","Sent message")
+        send_directive("sms message sent")
     }
   
 }
