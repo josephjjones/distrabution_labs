@@ -29,7 +29,7 @@ ruleset twilio.methods{
                      (page_size => "PageSize="+page_size | "") + 
                      (page => "Page="+page | "") + 
                      (page_uri => "PageToken="+page_uri | ""));
-        http:get(base_url+info)
+        http:get(base_url+extra)
     }
     
   }
