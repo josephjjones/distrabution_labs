@@ -27,9 +27,9 @@ ruleset twilio.methods{
         extra = "";
         extra = (to => "?To="+to | extra);
         extra = (from => (extra => "&"|"?")+"From="+from | extra);
-        extra = (page_size => (extra => "&"|"?")+"PageSize="+from | extra);
-        extra = (page => (extra => "&"|"?")+"Page="+from | extra);
-        extra = (page_uri => (extra => "&"|"?")+"PageToken="+from | extra).klog("Extra: ");
+        extra = (page_size => (extra => "&"|"?")+"PageSize="+page_size | extra);
+        extra = (page => (extra => "&"|"?")+"Page="+page | extra);
+        extra = (page_uri => (extra => "&"|"?")+"PageToken="+page_uri | extra).klog("Extra: ");
         http:get(base_url+extra)
     }
     
