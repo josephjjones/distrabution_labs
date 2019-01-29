@@ -15,20 +15,18 @@ ruleset messenger{
       select when test new_message
       twil:send_sms(event:attr("to"),
                event:attr("from"),
-               event:attr("message"),
-               event:attr("account_sid"),
-               event:attr("auth_token"))
+               event:attr("message"))
     }
 
     rule get_messages {
         select when fetch message
         pre{
         response = twil:get_sms(
-                event:attr("from").defaultsTo(""),//"12567632433",
-                event:attr("to").defaultsTo(""),
-                event:attr("page").defaultsTo("0"),
-                event:attr("page_size").defaultsTo("1"),
-                event:attr("uri").defaultsTo(""))
+                event:attr("from").defaultsTo([]),//"12567632433",
+                event:attr("to").defaultsTo([]),
+                event:attr("page").defaultsTo([]),
+                event:attr("page_size").defaultsTo([]),
+                event:attr("uri").defaultsTo([]))
         }
         send_directive("Twilio Messages", response{"content"}.decode())
     }
