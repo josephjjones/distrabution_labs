@@ -23,8 +23,12 @@ ruleset messenger{
     rule get_messages {
         select when fetch message
         pre{
-        response = twil:get_sms("12567632433",
-                event:attr("to").defaultsTo(""))
+        response = twil:get_sms(
+                event:attr("from").defaultsTo(""),//"12567632433",
+                event:attr("to").defaultsTo(""),
+                event:attr("page").defaultsTo("0"),
+                event:attr("page_size").defaultsTo("1"),
+                event:attr("uri").defaultsTo(""))
         }
         send_directive("Twilio Messages", response{"content"}.decode())
     }
