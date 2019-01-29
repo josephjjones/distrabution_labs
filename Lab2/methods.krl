@@ -27,8 +27,8 @@ ruleset twilio.methods{
         http:get(base_url, form = 
             {"From":from,
              "To":to,
-             "page":page,
-             "page_size":page_size,
+             "Page":page,
+             "PageSize":page_size,
              "uri":page_uri})
     }
     
