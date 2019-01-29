@@ -23,7 +23,7 @@ ruleset twilio.methods{
     }
 
     get_sms = function(from, to, page, page_size, page_uri){
-        base_url = <<https://#{account_sid}:#{auth_token}@api.twilio.com/2010-04-01/Accounts/#{account_sid}/Messages.json>>;
+        base_url = <<https://#{account_sid}:#{auth_token}@api.twilio.com/2010-04-01/Accounts/#{account_sid}/Messages.json?From=#{from}&PageSize=#{page_size}>>;
         http:get(base_url, form = 
             {"From":from,
              "To":to,
