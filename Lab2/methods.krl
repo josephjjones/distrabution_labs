@@ -19,7 +19,7 @@ ruleset twilio.methods{
                 {"From":from,
                  "To":to,
                  "Body":message
-                }, autoraise = finish_send)
+                }, autoraise = "finish_send")
     }
 
     get_sms = function(from, to, page, page_size, pageid){
