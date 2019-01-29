@@ -4,8 +4,8 @@ ruleset messenger{
     name "Lab Two"
     use module twilio.keys
     use module twilio.methods alias twil
-        with account_sid = keys:twil{"account_sid"}
-             auth_token  = keys:twil{"auth_token"} 
+        with account_sid = keys:twilio{"account_sid"}
+             auth_token  = keys:twilio{"auth_token"} 
   }
 
   global{
