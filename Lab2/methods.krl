@@ -23,13 +23,13 @@ ruleset twilio.methods{
     }
 
     get_sms = function(from, to, page, page_size, page_uri){
-        base_url = <<https://#{account_sid}:#{auth_token}@api.twilio.com/2010-04-01/Accounts/#{account_sid}/Messages.json?From=#{from}&PageSize=#{page_size}>>;
-        http:get(base_url, form = 
-            {"From":from,
-             "To":to,
-             "Page":page,
-             "PageSize":page_size,
-             "uri":page_uri})
+        base_url = <<https://#{account_sid}:#{auth_token}@api.twilio.com/2010-04-01/Accounts/#{account_sid}/Messages.json>>;
+        extra =  ("?" + (to => "To="+to | "") + 
+                     (from => "From="+from | "") + 
+                     (page_size => "PageSize="+page_size | "") + 
+                     (page => "Page="+page | "") + 
+                     (page_uri => "PageToken="+page_uri | ""));
+        http:get(base_url+info)
     }
     
   }
