@@ -26,7 +26,7 @@ ruleset twilio.methods{
         base_url = <<https://#{account_sid}:#{auth_token}@api.twilio.com/2010-04-01/Accounts/#{account_sid}/Messages.json>>;
         extra = "";
         extra = (to => "?To="+to | extra);
-        extra = (from => (extra => "&"|"?")+"From="+from | extra);
+        extra = (from => (extra => "some"|"thing")+"From="+from | extra);
         extra = (page_size => (extra => "&"|"?")+"PageSize="+page_size | extra);
         extra = (page => (extra => "&"|"?")+"Page="+page | extra);
         extra = (page_uri => (extra => "&"|"?")+"PageToken="+page_uri | extra).klog("Extra: ");
