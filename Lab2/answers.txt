@@ -1,0 +1,12 @@
+URLs: 
+    https://raw.githubusercontent.com/josephjjones/distrabution_labs/master/Lab2/twillofun.krl
+    https://raw.githubusercontent.com/josephjjones/distrabution_labs/master/Lab2/methods.krl
+
+3) Answers to the following questions:
+If you wanted to create a new module for a different API, in which cases would you create another key module for the keys from that API and in which would you use the same key module? 
+
+If I was creating an API that used twilio and required my personal keys for twilio, I would use the same module. If the keys were for any other site or service, I would make a new module for those keys. I would try to limit any key module to have the keys for only one service.
+
+Why does this assignment ask you to create a function for messages but an action for sending the SMS message? What's the difference?
+
+The sending of a message changes the state of the reciever, and so it is adviced to used an action. But the get request used for messages does not require a change of state and so is more suited for a function.
