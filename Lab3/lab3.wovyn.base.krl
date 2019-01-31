@@ -13,5 +13,11 @@ ruleset wovyn_base{
         send_directive("heartbeat",event:attrs())
     }
 
-
+    rule hello_world{
+        select when echo hello
+        pre{
+            nam = event:attr("name").defaultsTo("World")
+        }
+        send_directive("say", {"something": "Hello " + nam + "!"})
+    }
 }
