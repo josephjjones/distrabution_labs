@@ -9,7 +9,7 @@ ruleset wovyn_base{
     }
 
     rule process_heartbeat{
-        select when wovyn heartbeat
+        select when wovyn heartbeat where event:attr("genericThing")
         send_directive("heartbeat",event:attrs())
     }
 
