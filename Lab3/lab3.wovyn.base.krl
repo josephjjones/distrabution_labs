@@ -24,7 +24,7 @@ ruleset wovyn_base{
     rule read_temp{
         select when wovyn new_temperature_reading
         pre{
-            i = event:attrs().klog("Read Temp ---->")
+//            i = event:attrs().klog("Read Temp ---->")
         }
         fired{
             send_directive("reading",event:attrs())
