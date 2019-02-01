@@ -5,21 +5,19 @@ ruleset wovyn_base{
     }
 
     global{
-        //send_info = defaction(genericInfo){
-        //send_info(event:attr("genericThing"))
-        //    //collects temperature and time stamp to send on
-        //}
+        get_max_temp = function(){
+            ent:max_temp.defaultsTo(-400.0)
+        }
     }
 
     rule process_heartbeat{
         select when wovyn heartbeat where event:attr("genericThing")
+        send_directive("heartbeat",{"event":"recieved heartbeat"})
         fired{
             raise wovyn event "new_temperature_reading" attributes 
-              {"temperature":event:attr("genericThing")
-                                .decode()("data")
-                                .decode()("temperature"),
+              {"temperature":event:attr("genericThing")["data"]
+                                ["temperature"]["temperatureF"],
                "time":time:now()}
-//            send_directive("heartbeat",{"event":"recieved heartbeat"})
         }
     }
 
@@ -28,8 +26,17 @@ ruleset wovyn_base{
         pre{
             i = event:attrs().klog("Read Temp ---->")
         }
+        send_directive("reading",{"Temp_and_Time":event:attrs()})
         fired{
-//            send_directive("reading",{"Temp_and_Time":event:attrs()})
+        }
+    }
+
+    rule check_max_temp{
+        select when wovyn new_temperature_reading
+        fired{
+            ent:max_temp :=(get_max_temp() > event:attr("tempurature") =>
+                        get_max_temp() | 
+                        event:attr("tempurature"))
         }
     }
 
