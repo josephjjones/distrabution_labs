@@ -1,28 +1,30 @@
 ruleset wovyn_base{
     meta{
         author "Joseph Jones"
-        name "Lab 2 Wovyn"
+        name "Lab 3 Wovyn"
+//        use module twilio.keys
+//        use module twilio.methods alias twil
+//            with account_sid = keys:twilio{"account_sid"}
+//                 auth_token  = keys:twilio{"auth_token"}
     }
 
     global{
-//        raise_temp = function(temperature){
-//            raise wovyn event "new_temperature_reading" attributes 
-//              {"temperature":event:attr("genericThing")["data"]
-//                                ["temperature"]["temperatureF"],
-//               "time":time:now()}
-//        }
-        get_max_temp = function(){
-            ent:max_temp.defaultsTo(-400.0)
-        }
+        //ent:temperature_threshold := 100.0
+        //ent:to := "+12567634268"
+        //ent:from := "+12567332433"
     }
 
     rule process_heartbeat{
         select when wovyn heartbeat where event:attr("genericThing")
-        send_directive("heartbeat",{"event":"recieved heartbeat"})
+        pre{
+            temp = event:attr("genericThing")["data"]["temperature"].head()
+        }
+        every{
+            send_directive("heartbeat",{"event":"Recieved heartbeat"})
+        }
         fired{
             raise wovyn event "new_temperature_reading" attributes 
-              {"temperature":event:attr("genericThing")["data"]
-                                ["temperature"].head()["temperatureF"],
+              {"temperature":temp["temperatureF"],
                "time":time:now()}
         }
     }
@@ -37,20 +39,18 @@ ruleset wovyn_base{
         }
     }
 
-    rule check_max_temp{
+    rule find_high_temps{
         select when wovyn new_temperature_reading
+        
         fired{
-            ent:max_temp :=(get_max_temp() > event:attr("tempurature") =>
-                        get_max_temp() | 
-                        event:attr("tempurature"))
+//            raise wovyn event "threshold_violation" attributes event:attrs()
+//                if ent:temperature_threshold < event:attr("temperature")
         }
     }
 
-    rule hello_world{
-        select when echo hello
-        pre{
-            nam = event:attr("name").defaultsTo("World")
-        }
-        send_directive("say", {"something": "Hello " + nam + "!"})
+    rule threshold_notification{
+        select when wovyn threshold_violation
+ //       twil:send_sms(ent:to, ent:from, high_temp_message(
+  //          event:attr("tempurature"), event:attr("time")))
     }
 }
