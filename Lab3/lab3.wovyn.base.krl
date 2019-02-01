@@ -15,7 +15,9 @@ ruleset wovyn_base{
         select when wovyn heartbeat where event:attr("genericThing")
         fired{
             raise wovyn event "new_temperature_reading" attributes 
-              {"temperature":event:attr("genericThing")("data")("temperature"),
+              {"temperature":event:attr("genericThing")
+                                .decode()("data")
+                                .decode()("temperature"),
                "time":time:now()}
 //            send_directive("heartbeat",{"event":"recieved heartbeat"})
         }
@@ -24,10 +26,10 @@ ruleset wovyn_base{
     rule read_temp{
         select when wovyn new_temperature_reading
         pre{
-//            i = event:attrs().klog("Read Temp ---->")
+            i = event:attrs().klog("Read Temp ---->")
         }
         fired{
-            send_directive("reading",{"Temp_and_Time":event:attrs()})
+//            send_directive("reading",{"Temp_and_Time":event:attrs()})
         }
     }
 
