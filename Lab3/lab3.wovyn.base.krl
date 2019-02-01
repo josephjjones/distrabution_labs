@@ -27,7 +27,7 @@ ruleset wovyn_base{
 //            i = event:attrs().klog("Read Temp ---->")
         }
         fired{
-            send_directive("reading",{"Temp_and_Time":(event:attrs())})
+            send_directive("reading",{"Temp_and_Time":event:attrs()})
         }
     }
 
