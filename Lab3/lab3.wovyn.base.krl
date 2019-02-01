@@ -5,6 +5,12 @@ ruleset wovyn_base{
     }
 
     global{
+//        raise_temp = function(temperature){
+//            raise wovyn event "new_temperature_reading" attributes 
+//              {"temperature":event:attr("genericThing")["data"]
+//                                ["temperature"]["temperatureF"],
+//               "time":time:now()}
+//        }
         get_max_temp = function(){
             ent:max_temp.defaultsTo(-400.0)
         }
@@ -16,7 +22,7 @@ ruleset wovyn_base{
         fired{
             raise wovyn event "new_temperature_reading" attributes 
               {"temperature":event:attr("genericThing")["data"]
-                                ["temperature"]["temperatureF"],
+                                ["temperature"].head()["temperatureF"],
                "time":time:now()}
         }
     }
