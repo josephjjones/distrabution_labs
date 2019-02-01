@@ -15,7 +15,7 @@ ruleset wovyn_base{
         select when wovyn heartbeat where event:attr("genericThing")
         fired{
             raise wovyn event "new_temperature_reading" attributes 
-              {"temperature":event:attr("genericThing")("data")("temperature"),
+              {"temperature":event:attr("genericThing"),//("data")("temperature"),
                "time":time:now()};
             send_directive("heartbeat",{"event":"recieved heartbeat"})
         }
