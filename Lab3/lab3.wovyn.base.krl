@@ -9,9 +9,16 @@ ruleset wovyn_base{
     }
 
     global{
+        get_threshold = function(){
+            ent:temperature.defaultsTo(100.0)
+        }
         //ent:temperature_threshold := 100.0
-        //ent:to := "+12567634268"
-        //ent:from := "+12567332433"
+        get_to = function(){
+            ent:to.defaultsTo("+12567634268")
+        }
+        get_from = function(){
+            ent:from.defaultsTo("+12567332433")
+        }
         high_temp_message = function(temp, time){
             "At "+time+" temperature of "+temp+" was read"
         }
@@ -48,13 +55,13 @@ ruleset wovyn_base{
         
         fired{
             raise wovyn event "threshold_violation" attributes event:attrs()
-                if ent:temperature_threshold < event:attr("temperature")
+                if get_threshold() < event:attr("temperature")
         }
     }
 
     rule threshold_notification{
         select when wovyn threshold_violation
-        twil:send_sms(ent:to, ent:from, high_temp_message(
+        twil:send_sms(get_to(), get_from(), high_temp_message(
             event:attr("tempurature"), event:attr("time")))
     }
 }
