@@ -20,7 +20,7 @@ ruleset wovyn_base{
             ent:from.defaultsTo("+12567332433")
         }
         high_temp_message = function(temp, time){
-            "At "+time+" temperature of "+temp+" was read"
+            "At "+time+" temperature of "+temp.as("String")+" was read"
         }
     }
 
