@@ -12,6 +12,9 @@ ruleset wovyn_base{
         //ent:temperature_threshold := 100.0
         //ent:to := "+12567634268"
         //ent:from := "+12567332433"
+        high_temp_message = function(temp, time){
+            "At "+time+" temperature of "+temp+" was read"
+        }
     }
 
     rule process_heartbeat{
@@ -51,7 +54,7 @@ ruleset wovyn_base{
 
     rule threshold_notification{
         select when wovyn threshold_violation
- //       twil:send_sms(ent:to, ent:from, high_temp_message(
-  //          event:attr("tempurature"), event:attr("time")))
+        twil:send_sms(ent:to, ent:from, high_temp_message(
+            event:attr("tempurature"), event:attr("time")))
     }
 }
