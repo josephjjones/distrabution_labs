@@ -54,7 +54,7 @@ ruleset wovyn_base{
         select when wovyn new_temperature_reading
         pre{
             directive_message = 
-                 (get_threshold() < event:attr("temperature") => 
+                 (get_threshold() >= event:attr("temperature") => 
                     "Safe temperature" | "Warning High temperature detected")
         }
         send_directive("safety",{"rating":directive_message})
