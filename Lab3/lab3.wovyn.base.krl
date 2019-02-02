@@ -44,8 +44,8 @@ ruleset wovyn_base{
         select when wovyn new_temperature_reading
         
         fired{
-//            raise wovyn event "threshold_violation" attributes event:attrs()
-//                if ent:temperature_threshold < event:attr("temperature")
+            raise wovyn event "threshold_violation" attributes event:attrs()
+                if ent:temperature_threshold < event:attr("temperature")
         }
     }
 
