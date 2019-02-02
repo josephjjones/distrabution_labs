@@ -16,8 +16,9 @@ ruleset wovyn_base{
 
     rule process_heartbeat{
         select when wovyn heartbeat where event:attr("genericThing")
+            foreach event:attr("genericThing")["data"]["temperature"]
+                setting(temp)
         pre{
-            temp = event:attr("genericThing")["data"]["temperature"].head()
         }
         every{
             send_directive("heartbeat",{"event":"Recieved heartbeat"})
