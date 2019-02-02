@@ -2,10 +2,10 @@ ruleset wovyn_base{
     meta{
         author "Joseph Jones"
         name "Lab 3 Wovyn"
-//        use module twilio.keys
-//        use module twilio.methods alias twil
-//            with account_sid = keys:twilio{"account_sid"}
-//                 auth_token  = keys:twilio{"auth_token"}
+        use module twilio.keys
+        use module twilio.methods alias twil
+            with account_sid = keys:twilio{"account_sid"}
+                 auth_token  = keys:twilio{"auth_token"}
     }
 
     global{
