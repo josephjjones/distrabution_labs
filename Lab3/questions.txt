@@ -1,0 +1,70 @@
+URLs for your ruleset(s)
+    https://raw.githubusercontent.com/josephjjones/distrabution_labs/master/Lab3/lab3.wovyn.base.krl
+    https://raw.githubusercontent.com/josephjjones/distrabution_labs/master/Lab2/methods.krl
+
+Questions
+1) What parsing method did you choose?
+    I use the krl-compiler passing the file in through stdin,
+    and parse when I commit to my git repository using the precommit.
+
+2) Did you accomplish step 5 with an event expression or a rule conditional? What are the advantages and disadvantages of the method you used instead of the other?
+    I used event expression to determine whether or not the rule fired.
+    Event expression can only use information pertaining to the events and attributes,
+    while rule conditioanls can look up or use other information. 
+    Event expressions can be better to be able to access endpoints efficiently of determine what rule fire,
+        event expressions are also useful in evaluating compound expressions.
+
+3) What was the output of the testing your ruleset before the find_high_temps rule was added? How many directives were returned? How many rules do you think ran?
+    Before adding high temps the output was just two directives,
+    one from the heartbeat and the other from read_temp.
+    2 rules were run process_heartbeat & read_temp
+
+4) What was the output of the test after the find_high_temps rule was added? How many directives were returned? How many rules do you think ran?
+    3 directives were returned
+    3-4 rules were ran conditionally
+
+5) How do you account for the difference? Diagram the event flow within the pico (i.e. show the event flow from when the pico receives the first event to the directives being created) using a swimlane diagram (Links to an external site.)Links to an external site..
+    The difference is now there are two rules that match 
+    the event being raised so then the second rule conditionally 
+    raises another event.
+
+https://swimlanes.io/d/GtZHCI9Sp
+
+
+6) Would you say that your find_high_temps rule is an event intermediary? If so, what kind? Justify your answer.
+    I would say that it is an intermediary.
+    It functions as an Event Preprocessing intermediary,
+        because it determines whether or not to trigger an event
+        based on the value of temperature.
+
+7) How do your logs show that the find_high_temps rule works? Pick out specific lines and explain them.
+
+When the temperature is below the treshold
+
+rule selected: wovyn_base -> find_high_temps
+fired
+event finished processing
+=======================================================================
+When the temperature is above the threshold
+
+rule selected: wovyn_base -> find_high_temps
+ fired
+ adding raised event to schedule: wovyn/threshold_violation attributes ...
+ rule added to schedule: wovyn_base -> threshold_notification
+ rule selected: wovyn_base -> threshold_notification
+ adding raised event to schedule:
+ rule added to schedule: twilio.methods -> finish_send_sms
+ fired
+ rule selected: twilio.methods -> finish_send_sms
+ fired
+ event finished processing
+
+=========================================================================
+
+These show two seperate events the first being one where the temperature 
+was below the threshold and the event finished immediately after the 
+find_high_temps rule. 
+
+When a event is sent with a temperature above the threshold,
+the raised event is added and the threshold_notification rule is
+scheduled and run as well.
