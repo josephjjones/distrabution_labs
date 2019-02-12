@@ -43,9 +43,9 @@ ruleset wovyn_base{
     rule read_temp{
         select when wovyn new_temperature_reading
         pre{
-            i = event:attrs().klog("Read Temp ---->")
+            i = event:attrs.klog("Read Temp ---->")
         }
-        send_directive("reading",{"Temp_and_Time":event:attrs()})
+        send_directive("reading",{"Temp_and_Time":event:attrs})
         fired{
         }
     }
@@ -59,7 +59,7 @@ ruleset wovyn_base{
         }
         send_directive("safety",{"rating":directive_message})
         fired{
-            raise wovyn event "threshold_violation" attributes event:attrs()
+            raise wovyn event "threshold_violation" attributes event:attrs
                 if get_threshold() < event:attr("temperature")
         }
     }
