@@ -7,7 +7,7 @@ ruleset wovyn_base{
             with account_sid = keys:twilio{"account_sid"}
                  auth_token  = keys:twilio{"auth_token"}
     }
-
+    
     global{
         get_threshold = function(){
             ent:temperature.defaultsTo(100.0)
