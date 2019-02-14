@@ -1,0 +1,26 @@
+My new ruleset can be found at
+    https://raw.githubusercontent.com/josephjjones/distrabution_labs/master/Lab4/lab4.temperature_store.krl
+
+1) Explain how the rule collect_temperatures and the temperatures function work as an event-query API.
+    http://localhost:8080/sky/cloud/DWTzGk3L7saRezdMWindXq/temperature_store/temperatures
+    This example query uses the sky cloud API which allows for the calling of a function 
+    on a channel, but the query requires the rid for the ruleset and name of the function. (query api)
+
+    The temperatures rule instead uses the sky event api and selects upon the domain
+    and type of the event raised. (event api)
+    
+
+2) Explain your strategy for finding temperatures that are in range.
+    I provided a function to get the entity variable from my base_wovyn
+    ruleset, then use the filter function to compare the value from my list
+    of temperatures to the threshold and only keep those less than the threshold.
+
+3) What happens if provides doesn't list the name of the temperatures function?
+    Then other modules that use the temperature_store module/ruleset
+    are unable to call the function, any attempt to do so will fail.
+
+4) What happens if shares doesn't list it?
+    {"error": "Not shared: my_function"}
+    The pico responds with an error that reports that the function is
+    not shared and does not allow it to be called through a query.
+    
