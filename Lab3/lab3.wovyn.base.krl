@@ -2,6 +2,7 @@ ruleset wovyn_base{
     meta{
         author "Joseph Jones"
         name "Lab 3 Wovyn"
+        provides get_threshold
         use module twilio.keys
         use module twilio.methods alias twil
             with account_sid = keys:twilio{"account_sid"}
