@@ -31,7 +31,7 @@ ruleset temperature_store{
 //    (Note: I expect you to solve this without adding a rule 
 //        that collects in-range temperatures)
         inrange_temperatures = function(){
-            temperatures().filter(function(x){
+            temperatures().map(function(x){
                 x["temperature"] > wovyn_base.get_threshold()
             })
         }
