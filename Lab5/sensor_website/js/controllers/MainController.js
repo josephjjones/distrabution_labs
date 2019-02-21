@@ -24,9 +24,12 @@ angular.module('sensor', [])
     var profileURL = home()+'/sky/event/'+$scope.eci+
                     '/webpage/sensor/profile_updated';
     $scope.changeProfile = function() {
-      var pURL = changeURL + "?location=" + $scope.loc + "&name=" + $scope.name;
+      var pURL = profileURL + "?location=" + $scope.loc + 
+                              "&name=" + $scope.name;
       return $http.post(pURL).success(function(data){
-        //update profile view variables
+        $scope.loc = ''
+        $scope.name = ''
+        $scope.updateProfile()//update profile view variables
       });
     };
 
