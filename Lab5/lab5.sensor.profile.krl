@@ -27,7 +27,9 @@ ruleset sensor_profile{
 
     rule update_profile{
         select when sensor profile_updated 
-        when (event:attr("location") && event:attr("name"))
+        if event:attr("location") && event:attr("name")
+        then
+            send_directive("updated","profile")
 
         fired{
             ent:location := event:attr("location");
@@ -52,7 +54,9 @@ ruleset sensor_profile{
 
     rule update_phone_number{
         select when sensor phone_updated
-        when (event:attr("number"))
+        if event:attr("number")
+        then
+            send_directive("updated","number")
         fired{
             ent:phone_number := event:attr("number")
         } 
