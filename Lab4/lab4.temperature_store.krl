@@ -3,6 +3,7 @@ ruleset temperature_store{
         author "Joseph Jones"
         name "Lab 4 Persistance"
         use module wovyn_base
+        use module sensor_profile
 //Add a provides pragma to the meta block of the temperature_store ruleset 
 //that lists the three functions.
         provides temperatures, threshold_violations, inrange_temperatures
@@ -32,7 +33,8 @@ ruleset temperature_store{
 //        that collects in-range temperatures)
         inrange_temperatures = function(){
             temperatures().filter(function(x){
-                x["temperature"] < wovyn_base:get_threshold()
+                x["temperature"] < sensor_profile:getThresholds()["max"] &&
+                x["temperature"] > sensor_profile:getThresholds()["min"]
             })
         }
 

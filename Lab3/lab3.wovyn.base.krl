@@ -3,6 +3,7 @@ ruleset wovyn_base{
         author "Joseph Jones"
         name "Lab 3 Wovyn"
         provides get_threshold
+        use module sensor_profile
         use module twilio.keys
         use module twilio.methods alias twil
             with account_sid = keys:twilio{"account_sid"}
@@ -10,12 +11,12 @@ ruleset wovyn_base{
     }
  
     global{
+        check_threshold = function(temp){
+            temp < sensor_profile:getThresholds()["max"] &&
+            temp > sensor_profile:getThresholds()["min"]
+        }
         get_threshold = function(){
             ent:temperature.defaultsTo(100.0)
-        }
-        //ent:temperature_threshold := 100.0
-        get_to = function(){
-            ent:to.defaultsTo("+12567634268")
         }
         get_from = function(){
             ent:from.defaultsTo("+12567332433")
@@ -55,19 +56,19 @@ ruleset wovyn_base{
         select when wovyn new_temperature_reading
         pre{
             directive_message = 
-                 (get_threshold() >= event:attr("temperature") => 
-                    "Safe temperature" | "Warning High temperature detected")
+                 (check_threshold(event:attr("temperature")) => 
+                    "Safe temperature" | "Warning unsafe temperature detected")
         }
         send_directive("safety",{"rating":directive_message})
         fired{
             raise wovyn event "threshold_violation" attributes event:attrs
-                if get_threshold() < event:attr("temperature")
+                if not check_threshold(event:attr("temperature"))
         }
     }
 
     rule threshold_notification{
         select when wovyn threshold_violation
-        twil:send_sms(get_to(), get_from(), high_temp_message(
-            event:attr("temperature"), event:attr("time")))
+        twil:send_sms(sensor_profile:getPhoneNumber(), get_from(),
+            high_temp_message(event:attr("temperature"), event:attr("time")))
     }
 }
