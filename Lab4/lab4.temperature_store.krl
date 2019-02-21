@@ -62,7 +62,7 @@ ruleset temperature_store{
     rule collect_threshold_violations{
         select when wovyn threshold_violation
         fired{
-            ent:violations_list := [event:atts].append(threshold_violations())
+            ent:violations_list := [event:attrs].append(threshold_violations())
         }
     }
 

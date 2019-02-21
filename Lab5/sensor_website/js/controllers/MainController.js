@@ -38,9 +38,10 @@ angular.module('sensor', [])
     $scope.changeThreshold = function() {
       var pURL = changeURL + "?min=" + $scope.low + "&max=" + $scope.high;
       return $http.post(pURL).success(function(data){
-        $scope.getTemps();
         $scope.low=''; //entry fields
         $scope.high='';
+        $scope.getTemps();
+        $scope.updateProfile()
       });
     };
 
@@ -50,6 +51,7 @@ angular.module('sensor', [])
       var pURL = phoneURL + "?number=" + $scope.number;
       return $http.post(pURL).success(function(data){
         $scope.number=''; //entry field
+        $scope.updateProfile()
       });
     };
     
@@ -68,7 +70,7 @@ angular.module('sensor', [])
       });
     };
 
-    var sensorURL = home()+'sky/cloud/'+$scope.eci+'/sensor_profile/getSensor';
+    var sensorURL = home()+'/sky/cloud/'+$scope.eci+'/sensor_profile/getSensor';
     $scope.updateProfile = function() {
       return $http.get(sensorURL).success(function(data){
         angular.copy(data, $scope.profile);
