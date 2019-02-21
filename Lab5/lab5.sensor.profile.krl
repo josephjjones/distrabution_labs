@@ -22,7 +22,7 @@ ruleset sensor_profile{
 
         getSensor = function(){
             getThresholds().put(getProfile()).put(getPhoneNumber())
-        }
+        };
     }
 
     rule update_profile{
