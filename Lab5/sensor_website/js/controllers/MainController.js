@@ -2,12 +2,21 @@ angular.module('sensor', [])
 .controller('MainCtrl', [
   '$scope','$http',
   function($scope,$http){
+    $scope.current_temperature = 75;
     $scope.temperatures = [];
     $scope.violations = [];
     $scope.eci = 'DWTzGk3L7saRezdMWindXq';
     $scope.ip = 'localhost'
     $scope.port = '8080'
-    
+
+    $scope.profile = {
+        'name':'Wovyn Sensor',
+        'location':'home',
+        'number':'+12567634268',
+        'min':60,
+        'max':90
+    }
+ 
     var home = function(){
         return 'http://'+$scope.ip + ':' + $scope.port;
     };
@@ -45,15 +54,25 @@ angular.module('sensor', [])
     $scope.getTemps = function() {
       return $http.get(gURL).success(function(data){
         angular.copy(data, $scope.temperatures);
+        $scope.current_temperature = data[0]['temperature'];
       });
-    }
-    $scope.getTemps();
-    var vURL = home()+'/sky/cloud/'+$scope.eci+'/temperature_store/threshold_violations';
+    };
+    var vURL = home()+'/sky/cloud/'+$scope.eci+
+               '/temperature_store/threshold_violations';
     $scope.getViolations = function() {
       return $http.get(vURL).success(function(data){
         angular.copy(data, $scope.violations);
       });
-    }
+    };
+
+    var sensorURL = home()+'sky/cloud/'+$scope.eci+'/sensor_profile/getSensor';
+    $scope.updateProfile = function() {
+      return $http.get(sensorURL).success(function(data){
+        angular.copy(data, $scope.profile);
+      });
+    };
+    $scope.updateProfile();
+    $scope.getTemps();
     $scope.getViolations();
   }
 ]);

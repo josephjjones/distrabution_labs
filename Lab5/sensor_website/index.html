@@ -23,6 +23,7 @@
 <div class="page-header"> 
   <h1>Wovyn Temperatures</h1>
 </div>
+<a href="settings.html">Profile Information</a>
   <table style="width:100%;text-align:left">
       <tr>
         <th>Current Temperature</th>
@@ -30,7 +31,7 @@
         <th>Temperature Violations</th>
       </tr>
       <tr>
-        <td>75.5</td>
+        <td>{{current_temperature}}</td>
         <td>
             <div ng-repeat="temperature in temperatures">
               {{temperature.temperature}} ----
@@ -45,17 +46,6 @@
         </td>
       </tr>
   </table>
-  <form ng-submit="changeThreshold()" style = "margin-top:30px;">
-    Change Future Temperature Threshold:
-    <input type="text" ng-model="low" placeholder="low"></input>
-    <input type="text" ng-model="high" placeholder="high"></input>
-    <button type="submit">Submit</button>
-  </form>
-  <form ng-submit="changeNumber()" style = "margin-top:30px;">
-    Change Phone Number
-    <input type="text" ng-model="number" placeholder="+12567634268"></input>
-    <button type="submit">Submit</button>
-  </form>
   <div class="eci"> <!-- Change eci if needed -->
     <input type="text" ng-model="eci" size="29"></input>
   </div>

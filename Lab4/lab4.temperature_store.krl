@@ -49,7 +49,7 @@ ruleset temperature_store{
     rule collect_temperatures{
         select when wovyn new_temperature_reading
         always{
-            ent:temperature_list := temperatures().append([event:attrs])
+            ent:temperature_list := [event:attrs].append(temperatures())
         }
     }
 
@@ -62,7 +62,7 @@ ruleset temperature_store{
     rule collect_threshold_violations{
         select when wovyn threshold_violation
         fired{
-            ent:violations_list := threshold_violations().append([event:attrs])
+            ent:violations_list := [event:atts].append(threshold_violations())
         }
     }
 

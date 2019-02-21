@@ -1,10 +1,8 @@
 ruleset sensor_profile{
     meta{
-        author "Joseph Jones"
-        name "Lab 5 Single Page Application Helper"
 
         provides getThresholds, getProfile, getPhoneNumber
-        shares getThresholds, getProfile, getPhoneNumber
+        shares getThresholds, getProfile, getPhoneNumber, getSensor
 
     }
     global{
@@ -21,6 +19,10 @@ ruleset sensor_profile{
         getPhoneNumber = function(){
             {"number":ent:phone_number.defaultsTo("+12567634268")}
         };
+
+        getSensor = function(){
+            getThresholds().put(getProfile()).put(getPhoneNumber())
+        }
     }
 
     rule update_profile{
