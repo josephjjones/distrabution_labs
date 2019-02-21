@@ -12,10 +12,19 @@ angular.module('sensor', [])
         return 'http://'+$scope.ip + ':' + $scope.port;
     };
 
+    var profileURL = home()+'/sky/event/'+$scope.eci+
+                    '/webpage/sensor/profile_updated';
+    $scope.changeProfile = function() {
+      var pURL = changeURL + "?location=" + $scope.loc + "&name=" + $scope.name;
+      return $http.post(pURL).success(function(data){
+        //update profile view variables
+      });
+    };
 
-    var changeURL = home()+'/sky/event/'+$scope.eci+'/webpage/configure/thresholds';
+    var changeURL = home()+'/sky/event/'+$scope.eci+
+                    '/webpage/sensor/threshold_updated';
     $scope.changeThreshold = function() {
-      var pURL = changeURL + "?low=" + $scope.low + "&high=" + $scope.high;
+      var pURL = changeURL + "?min=" + $scope.low + "&max=" + $scope.high;
       return $http.post(pURL).success(function(data){
         $scope.getTemps();
         $scope.low=''; //entry fields
@@ -23,7 +32,8 @@ angular.module('sensor', [])
       });
     };
 
-    var phoneURL = home()+'/sky/event/'+$scope.eci+'/webpage/configure/phonenumber';
+    var phoneURL = home()+'/sky/event/'+$scope.eci+
+                   '/webpage/sensor/phone_updated';
     $scope.changeNumber = function() {
       var pURL = phoneURL + "?number=" + $scope.number;
       return $http.post(pURL).success(function(data){

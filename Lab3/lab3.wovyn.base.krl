@@ -68,7 +68,7 @@ ruleset wovyn_base{
 
     rule threshold_notification{
         select when wovyn threshold_violation
-        twil:send_sms(sensor_profile:getPhoneNumber(), get_from(),
+        twil:send_sms(sensor_profile:getPhoneNumber()["number"], get_from(),
             high_temp_message(event:attr("temperature"), event:attr("time")))
     }
 }
