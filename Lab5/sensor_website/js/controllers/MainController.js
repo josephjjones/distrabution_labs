@@ -67,7 +67,7 @@ angular.module('sensor', [])
     $scope.getViolations = function() {
       return $http.get(vURL).success(function(data){
         angular.copy(data, $scope.violations);
-        $scope.temperatures.length = 15
+        $scope.violations.length = 15
       });
     };
 
