@@ -57,7 +57,8 @@ angular.module('sensor', [])
     var gURL = home()+'/sky/cloud/'+$scope.eci+'/temperature_store/temperatures';
     $scope.getTemps = function() {
       return $http.get(gURL).success(function(data){
-        angular.copy(data.slice(0, 15), $scope.temperatures);
+        angular.copy(data, $scope.temperatures);
+        $scope.temperatures.length = 15
         $scope.current_temperature = data[0]['temperature'];
       });
     };
@@ -65,7 +66,8 @@ angular.module('sensor', [])
                '/temperature_store/threshold_violations';
     $scope.getViolations = function() {
       return $http.get(vURL).success(function(data){
-        angular.copy(data.slice(0, 15), $scope.violations);
+        angular.copy(data, $scope.violations);
+        $scope.temperatures.length = 15
       });
     };
 
