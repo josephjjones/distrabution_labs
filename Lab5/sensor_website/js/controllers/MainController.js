@@ -40,7 +40,6 @@ angular.module('sensor', [])
       return $http.post(pURL).success(function(data){
         $scope.low=''; //entry fields
         $scope.high='';
-        $scope.getTemps();
         $scope.updateProfile()
       });
     };
@@ -77,7 +76,13 @@ angular.module('sensor', [])
       });
     };
     $scope.updateProfile();
-    $scope.getTemps();
-    $scope.getViolations();
+
+    var updateTemps = function(){
+        $scope.getTemps();
+        $scope.getViolations();
+        setTimeout(updateTemps, 3000);
+    }
+
+    updateTemps()
   }
 ]);

@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <title>Temperature Sensor</title>
+  <link type="text/css" src="css/bootstrap.min.css" rel="stylesheet">
+  <script type="text/javascript" src="js/angular.min.js"></script>
+
+<!-- Modules -->
+<script src="js/app.js"></script>
+
+<!-- Controllers -->
+<script type="text/javascript" src="js/controllers/MainController.js"></script>
+
+  <style type="text/css">
+    span.finished { cursor: pointer; color: blue; text-decoration: underline; }
+    div.eci input { visibility: hidden; }
+    div.eci:hover input { visibility: visible; }
+  </style>
+</head>
+<body ng-app="sensor" ng-controller="MainCtrl">
+<div class="row">
+<div class="col-md-8 col-md-offset-2">
+<div class="page-header"> 
+  <h2> {{profile.name}} at {{profile.location}} --Contact: {{profile.number}} </h2>
+  <h3> Threshold {{profile.min}}-{{profile.max}}</h3>
+</div>
+<a href="index.html">Temperature Information</a>
+  <form ng-submit="changeProfile()" style = "margin-top:30px;">
+    Change Profile Information 
+    <input type="text" ng-model="name" placeholder="name"></input>
+    <input type="text" ng-model="loc" placeholder="location"></input>
+    <button type="submit">Submit</button>
+  </form>
+  <form ng-submit="changeThreshold()" style = "margin-top:30px;">
+    Change Future Temperature Threshold
+    <input type="text" ng-model="low" placeholder="low"></input>
+    <input type="text" ng-model="high" placeholder="high"></input>
+    <button type="submit">Submit</button>
+  </form>
+  <form ng-submit="changeNumber()" style = "margin-top:30px;">
+    Change Phone Number
+    <input type="text" ng-model="number" placeholder="+12567634268"></input>
+    <button type="submit">Submit</button>
+  </form>
+  <div class="eci"> <!-- Change eci if needed -->
+    <input type="text" ng-model="eci" size="29"></input>
+  </div>
+</div>
+</div>
+</body>
+</html>
