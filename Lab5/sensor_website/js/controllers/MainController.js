@@ -2,7 +2,7 @@ angular.module('sensor', [])
 .controller('MainCtrl', [
   '$scope','$http',
   function($scope,$http){
-    $scope.current_temperature = 75;
+    $scope.current_temperature = 'no temperature yet';
     $scope.temperatures = [];
     $scope.violations = [];
     $scope.eci = 'DWTzGk3L7saRezdMWindXq';
@@ -57,7 +57,7 @@ angular.module('sensor', [])
     var gURL = home()+'/sky/cloud/'+$scope.eci+'/temperature_store/temperatures';
     $scope.getTemps = function() {
       return $http.get(gURL).success(function(data){
-        angular.copy(data, $scope.temperatures);
+        angular.copy(data.slice(0, 15), $scope.temperatures);
         $scope.current_temperature = data[0]['temperature'];
       });
     };
@@ -72,7 +72,7 @@ angular.module('sensor', [])
     var sensorURL = home()+'/sky/cloud/'+$scope.eci+'/sensor_profile/getSensor';
     $scope.updateProfile = function() {
       return $http.get(sensorURL).success(function(data){
-        angular.copy(data.slice(0, 15), $scope.profile);
+        angular.copy(data, $scope.profile);
       });
     };
     $scope.updateProfile();
