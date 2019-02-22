@@ -65,14 +65,14 @@ angular.module('sensor', [])
                '/temperature_store/threshold_violations';
     $scope.getViolations = function() {
       return $http.get(vURL).success(function(data){
-        angular.copy(data, $scope.violations);
+        angular.copy(data.slice(0, 15), $scope.violations);
       });
     };
 
     var sensorURL = home()+'/sky/cloud/'+$scope.eci+'/sensor_profile/getSensor';
     $scope.updateProfile = function() {
       return $http.get(sensorURL).success(function(data){
-        angular.copy(data, $scope.profile);
+        angular.copy(data.slice(0, 15), $scope.profile);
       });
     };
     $scope.updateProfile();
