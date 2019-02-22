@@ -1,0 +1,50 @@
+
+URL of your SPA (or source code)
+https://josephjjones.github.io/distrabution_labs/Lab5/sensor_website/index.html
+
+URLs for your rulesets. 
+New Ruleset:
+    https://raw.githubusercontent.com/josephjjones/distrabution_labs/master/Lab5/lab5.sensor.profile.krl
+
+Updated Rulesets:
+    https://raw.githubusercontent.com/josephjjones/distrabution_labs/master/Lab4/lab4.temperature_store.krl
+    https://raw.githubusercontent.com/josephjjones/distrabution_labs/master/Lab3/lab3.wovyn.base.krl
+
+Other Rulesets:
+    https://raw.githubusercontent.com/josephjjones/distrabution_labs/master/Lab2/methods.krl
+    https://raw.githubusercontent.com/josephjjones/distrabution_labs/master/Lab2/twillofun.krl
+
+Questions
+1) What design decisions did you make in your rulesets that made this assignment easier or harder? Why? 
+    I chose to only count a temperature as a violation if it happened during
+    a time that it was a violation. It made things slightly easier,
+    as I did not need to raise an event and use a filter function to 
+    reset the list of violations.
+    
+    I also found that it was good that my previous rulesets were already calling
+    functions to access the entity variable that contained phone numbers and
+    threshold information.
+
+    Adding a min threshold was a descision based around detecting if the heating
+    in my apartment shut off, since that was a problem last winter. It added
+    complexity to checking the threshold, so I refactored to have all threshold
+    checks call a single function that returned a boolean so that future 
+    modifications would be simpler.
+
+    I also allowed for sumbission of partial changes to e profile requiring my
+    rules to be more complex, but more flexible as well. It would be easier to 
+    add a new profile feature, without touching the functionality of the old.
+
+2) Explain how the sensor_profile ruleset isolates state and processes regarding the sensor profile from other rulesets.
+    The state of the profile is contained in one location, allowing all rulesets
+    to access the necessary information from a single source preventing errors
+    that may occur from out of sync information about the profile. All changes
+    to how the profile functions are isolated to only the single ruleset.
+
+3) How do other rulesets use the sensor_profile to get data?
+Could they use it to store new values? How?
+    They only can access the profile data through the provided functions,
+    that sensor_profile monitors and provides. Those functions can not be used
+    to change the value of the entity variables, but other rulesets can use 
+    sensor_profile to store new profile values by raising the event associated 
+    with updating the values.

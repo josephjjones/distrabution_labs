@@ -58,7 +58,8 @@ angular.module('sensor', [])
     $scope.getTemps = function() {
       return $http.get(gURL).success(function(data){
         angular.copy(data, $scope.temperatures);
-        $scope.temperatures.length = 15
+        if($scope.temperatures.length > 15){
+            $scope.temperatures.length = 15;}
         $scope.current_temperature = data[0]['temperature'];
       });
     };
@@ -67,7 +68,8 @@ angular.module('sensor', [])
     $scope.getViolations = function() {
       return $http.get(vURL).success(function(data){
         angular.copy(data, $scope.violations);
-        $scope.violations.length = 15
+        if( $scope.violations.length > 15){
+            $scope.violations.length = 15;}
       });
     };
 
