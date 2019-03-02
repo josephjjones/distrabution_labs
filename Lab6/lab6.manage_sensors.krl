@@ -48,13 +48,13 @@ ruleset manage_sensors{
         section_id = event:attr("rs_attrs"){"section_id"}
       }
       if section_id.klog("found section_id")
-      then
-        //send_directive("Status",{"new_sensor":"Created new Sensor"});
+      then every{
+        send_directive("Status",{"new_sensor":"Created new Sensor"});
         event:send(
            { "eci": the_section{"eci"}, "eid": "parent",
              "domain": "sensor", "type": "profile_updated",
              "attrs": { "name": section_id,
-                        "location": "Unknown" } } )
+                        "location": "Unknown" } } )}
 
       fired {
         ent:sensors := sensors();
