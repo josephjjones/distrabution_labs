@@ -1,6 +1,6 @@
 ruleset sensor_profile{
     meta{
-
+        author "Joseph Jones"
         provides getThresholds, getProfile, getPhoneNumber
         shares getThresholds, getProfile, getPhoneNumber, getSensor
 
