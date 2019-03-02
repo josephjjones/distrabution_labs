@@ -8,7 +8,7 @@ ruleset manage_sensors{
 
     global{
         sensors = function(){
-            ent.sensors.defaultsTo({})
+            ent:sensors.defaultsTo({})
         }
         all_temperatures = function(){
             sensors().map(funcition(v,k){
