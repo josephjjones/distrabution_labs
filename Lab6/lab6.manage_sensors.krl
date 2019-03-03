@@ -11,8 +11,8 @@ ruleset manage_sensors{
             ent:sensors.defaultsTo({})
         }
         all_temperatures = function(){
-            sensors().map(funcition(v,k){
-              wrangler:skyQuery(v["eci"],"temperature_store","temperatures",{})
+            sensors().map(function(v,k){
+              wrangler:skyQuery(v.get("eci"),"temperature_store","temperatures",{})
             })
         }
         nameFromID = function(section_id) {
@@ -76,7 +76,7 @@ ruleset manage_sensors{
         fired {
           raise wrangler event "child_deletion"
             attributes {"name": child};
-          clear ent:sections{[sensor]}
+          ent:sensors := ent:sensors.delete(sensor)
         }
 
     }
