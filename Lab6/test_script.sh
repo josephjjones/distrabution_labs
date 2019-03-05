@@ -76,10 +76,11 @@ echo -e "\nTemperatures after"
 curl -s "http://localhost:8080/sky/cloud/$parent_eci/manage_sensors/all_temperatures"
 
 echo -e "\n\nDelete All Children"
-##for child in "${children[@]}"
-#do
-#    curl -s --request POST "http://localhost:8080/sky/event/$parent_eci/postman/sensor/unneeded_sensor?sensor_name=$child" > temp
-#done
+for child in "${children[@]}"
+do
+    curl -s --request POST "http://localhost:8080/sky/event/$parent_eci/postman/sensor/unneeded_sensor?sensor_name=$child" > temp
+done
+
 echo -e "\nChildren after deletion"
 curl -s "http://localhost:8080/sky/cloud/$parent_eci/manage_sensors/sensors"
 echo -e "Done"
