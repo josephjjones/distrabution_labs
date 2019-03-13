@@ -2,6 +2,7 @@ ruleset manage_sensors{
     meta{
         author "Joseph Jones"
         use module io.picolabs.wrangler alias wrangler
+        use module io.picolabs.subscription alias Subscriptions
         shares sensors, all_temperatures
         provides sensors, all_temperatures
     }
@@ -11,12 +12,22 @@ ruleset manage_sensors{
             ent:sensors.defaultsTo({})
         }
         all_temperatures = function(){
-            sensors().map(function(v,k){
-              wrangler:skyQuery(v.get("eci"),"temperature_store","temperatures",{})
-            })
+            Subscriptions:established().filter(
+                function(v){
+                    v.get("Tx_role") == "sensor"
+                }
+            ).map(
+                function(v){
+                    sensor_name = sensors().get(v.get(["Tx","sensor_name"]));
+                    temperature = wrangler:skyQuery(v.get("Tx"),"temperature_store","temperatures",{});
+                    {}
+                }
+            )
         }
-        nameFromID = function(section_id) {
-          "Section " + section_id + " Pico"
+        get_channel = function(sensor_name){
+            sensors().filter(function(v,k){
+                v.get("sensor_name") == sensor_name
+            }).keys()
         }
     }
 
@@ -30,36 +41,79 @@ ruleset manage_sensors{
         then send_directive("Status",{"new_sensor":"Sensor already created"})
         notfired{
             raise wrangler event "child_creation"
-                attributes { "name": nameFromID(sensor),
+                attributes { "name": sensor,
                              "color": "#fe50d2",
                              "section_id": sensor,
                              "rids": ["temperature_store",
                                       "wovyn_base",
                                       "sensor_profile",
                                       "twilio.keys",
-                                      "twilio.methods"] }
+                                      "twilio.methods",
+                                      "io.picolabs.subscription"] }
         }
     }
 
     rule store_new_section {
       select when wrangler child_initialized
       pre {
-        the_section = {"id": event:attr("id"), "eci": event:attr("eci")}
-        section_id = event:attr("rs_attrs"){"section_id"}
+        id = event:attr("id")
+        eci = event:attr("eci")
+        sensor_name = event:attr("rs_attrs"){"section_id"}
       }
-      if section_id.klog("found section_id")
+      if sensor_name.klog("found section_id")
       then every{
         send_directive("Status",{"new_sensor":"Created new Sensor"});
         event:send(
-           { "eci": the_section{"eci"}, "eid": "parent",
+           { "eci": eci, "eid": "parent",
              "domain": "sensor", "type": "profile_updated",
              "attrs": { "name": section_id,
                         "location": "Unknown" } } )}
 
       fired {
-        ent:sensors := sensors();
-        ent:sensors{[section_id]} := the_section
+        raise sensor event "subscription"
+            attributes{
+                "eci":eci,
+                "name":sensor_name
+            }
       }
+     }
+
+    rule add_subscription{
+        select when sensor subscription
+            where event:attr("eci") && event:attr("name")
+ 
+        pre{
+            Tx = event:attr("eci")
+            nm = event:attr("name")
+            Tx_host = event:attr("host").defaultsTo(meta:host)
+        }
+
+        always{
+            ent:sensors := sensors();
+            ent:sensors{[Tx]} := {"sensor_name":nm,"status":"pending"};
+
+            raise wrangler event "subscription"
+                attributes{
+                    "name":nm,
+                    "Tx_host":Tx_host,
+                    "wellKnown_Tx":Tx,
+                    "Rx_role":"sensor_manager",
+                    "Tx_role":"sensor",
+                    "channel_type":"subscription"
+                }
+        }
+    }
+
+    rule finish_add_subscription{
+        select when wrangler subscription_added
+        pre{
+            //event:attrs().klog()
+            Tx = event:attr("Tx")
+        }
+
+        always{
+            ent:sensors := sensors.put([Tx,"status"],"accepted")
+        }
     }
 
     rule remove_sensor{
@@ -68,16 +122,15 @@ ruleset manage_sensors{
 
         pre{
             sensor = event:attr("sensor_name")
-            exists = sensors() >< sensor
-            child = nameFromID(sensor)
+            exists = wrangler:children(sensor)
+            Tx = (exists => get_channel(sensor)| "None")
         }
         if exists then
             send_directive("deleting_section", {"section_id":sensor})
         fired {
           raise wrangler event "child_deletion"
-            attributes {"name": child};
-          ent:sensors := ent:sensors.delete(sensor)
+            attributes {"name": sensor};
+          ent:sensors := ent:sensors.delete(Tx)
         }
-
     }
 }
