@@ -1,10 +1,10 @@
 ruleset manager_profile{
     meta{
         author "Joseph Jones"
-        use module twillio.keys
+        use module twilio.keys
         use module twilio.methods alias twil
-            with account_sid = keys:twillio{"account_sid"}
-                 auth_token  = keys:twillio{"auth_token"}
+            with account_sid = keys:twilio{"account_sid"}
+                 auth_token  = keys:twilio{"auth_token"}
     }
 
     global{
