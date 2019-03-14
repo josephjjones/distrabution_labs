@@ -118,18 +118,15 @@ ruleset manage_sensors{
     rule remove_sensor{
         select when sensor unneeded_sensor
             where event:attr("sensor_name")
-
         pre{
             sensor = event:attr("sensor_name")
             exists = wrangler:children(sensor)
-            Tx = (exists => get_channel(sensor)| "None")
         }
         if exists then
             send_directive("deleting_section", {"section_id":sensor})
         fired {
           raise wrangler event "child_deletion"
             attributes {"name": sensor};
-          ent:sensor_list := ent:sensor_list.delete(Tx)
         }
     }
 }
