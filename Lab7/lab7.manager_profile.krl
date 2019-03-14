@@ -9,7 +9,7 @@ ruleset manager_profile{
 
     global{
         getPhoneNumber = function(){
-            {"number":ent:phone_number.defaultsTo("+1256834268")}
+            {"number":ent:phone_number.defaultsTo("+1257634268")}
         };
         
         high_temp_message = function(temp, time){
