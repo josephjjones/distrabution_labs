@@ -4,7 +4,7 @@ ruleset manage_sensors{
         use module io.picolabs.wrangler alias wrangler
         use module io.picolabs.subscription alias Subscriptions
         shares sensors, all_temperatures, channels
-        provides sensors, all_temperatures
+        provides sensors, all_temperatures, channels
     }
 
     global{
@@ -22,7 +22,7 @@ ruleset manage_sensors{
                 }
             ).map(
                 function(v){
-                    sensor_name = channels.get(v.get("Tx"));
+                    sensor_name = channels().get(v.get("Tx"));
                     temperatures = wrangler:skyQuery(v.get("Tx"),"temperature_store","temperatures",{});
                     {}.put(sensor_name,temperatures)
                 }
