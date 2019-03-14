@@ -9,7 +9,7 @@ ruleset manage_sensors{
 
     global{
         sensors = function(){
-            ent:sensors.defaultsTo({})
+            ent:sensor_list.defaultsTo({})
         }
         all_temperatures = function(){
             Subscriptions:established().filter(
@@ -89,8 +89,8 @@ ruleset manage_sensors{
         }
 
         always{
-            ent:sensors := sensors();
-            ent:sensors{[Tx]} := {"sensor_name":nm,"status":"pending"};
+            ent:sensor_list := sensors();
+            ent:sensor_list{[Tx]} := {"sensor_name":nm,"status":"pending"};
 
             raise wrangler event "subscription"
                 attributes{
@@ -107,12 +107,12 @@ ruleset manage_sensors{
     rule finish_add_subscription{
         select when wrangler subscription_added
         pre{
-            //event:attrs().klog()
+            e = event:attrs().klog("Sub Added");
             Tx = event:attr("Tx")
         }
 
         always{
-            ent:sensors := sensors.put([Tx,"status"],"accepted")
+            ent:sensor_list := sensors.put([Tx,"status"],"accepted")
         }
     }
 
@@ -130,7 +130,7 @@ ruleset manage_sensors{
         fired {
           raise wrangler event "child_deletion"
             attributes {"name": sensor};
-          ent:sensors := ent:sensors.delete(Tx)
+          ent:sensor_list := ent:sensor_list.delete(Tx)
         }
     }
 }
