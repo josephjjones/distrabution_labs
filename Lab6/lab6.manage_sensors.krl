@@ -9,12 +9,13 @@ ruleset manage_sensors{
 
     global{
         sensors = function(){
+            //list of subscriptions by name
             ent:sensor_list.defaultsTo({})
-        }
+        };
         channels = function(){
             //provides map from Tx channels to sensor names
             ent:channel_list.defaultsTo({})
-        }
+        };
         all_temperatures = function(){
             Subscriptions:established().filter(
                 function(v){
@@ -24,10 +25,10 @@ ruleset manage_sensors{
                 function(v){
                     sensor_name = channels().get(v.get("Tx"));
                     temperatures = wrangler:skyQuery(v.get("Tx"),"temperature_store","temperatures",{});
-                    {}.put(sensor_name,temperatures)
+                    {"sensor_name":sensor_name,"temperatures":temperatures}
                 }
             )
-        }
+        };
     }
 
     rule add_sensor{
@@ -69,7 +70,6 @@ ruleset manage_sensors{
                         "location": "Unknown" } } )}
 
       fired {
-        //ent:sensor_list = sensors().put(sensor_name, eci);
         raise sensor event "subscription"
             attributes{
                 "eci":eci,
