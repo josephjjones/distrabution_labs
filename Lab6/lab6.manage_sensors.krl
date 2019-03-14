@@ -3,7 +3,7 @@ ruleset manage_sensors{
         author "Joseph Jones"
         use module io.picolabs.wrangler alias wrangler
         use module io.picolabs.subscription alias Subscriptions
-        shares sensors, all_temperatures
+        shares sensors, all_temperatures, channels
         provides sensors, all_temperatures
     }
 
