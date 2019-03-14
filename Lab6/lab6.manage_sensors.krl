@@ -11,6 +11,10 @@ ruleset manage_sensors{
         sensors = function(){
             ent:sensor_list.defaultsTo({})
         }
+        channels = function(){
+            //provides map from Tx channels to sensor names
+            ent:channel_list.defaultsTo({})
+        }
         all_temperatures = function(){
             Subscriptions:established().filter(
                 function(v){
@@ -18,16 +22,11 @@ ruleset manage_sensors{
                 }
             ).map(
                 function(v){
-                    sensor_name = sensors().get(v.get(["Tx","sensor_name"]));
-                    temperature = wrangler:skyQuery(v.get("Tx"),"temperature_store","temperatures",{});
-                    {}
+                    sensor_name = channels.get(v.get("Tx"));
+                    temperatures = wrangler:skyQuery(v.get("Tx"),"temperature_store","temperatures",{});
+                    {}.put(sensor_name,temperatures)
                 }
             )
-        }
-        get_channel = function(sensor_name){
-            sensors().filter(function(v,k){
-                v.get("sensor_name") == sensor_name
-            }).keys()
         }
     }
 
@@ -60,7 +59,7 @@ ruleset manage_sensors{
         eci = event:attr("eci")
         sensor_name = event:attr("rs_attrs"){"section_id"}
       }
-      if sensor_name.klog("found section_id")
+      if sensor_name
       then every{
         send_directive("Status",{"new_sensor":"Created new Sensor"});
         event:send(
@@ -70,6 +69,7 @@ ruleset manage_sensors{
                         "location": "Unknown" } } )}
 
       fired {
+        //ent:sensor_list = sensors().put(sensor_name, eci);
         raise sensor event "subscription"
             attributes{
                 "eci":eci,
@@ -89,9 +89,7 @@ ruleset manage_sensors{
         }
 
         always{
-            ent:sensor_list := sensors();
-            ent:sensor_list{[Tx]} := {"sensor_name":nm,"status":"pending"};
-
+            ent:sensor_list := sensors().put(nm, {"eci":Tx,"status":"pending"});
             raise wrangler event "subscription"
                 attributes{
                     "name":nm,
@@ -107,12 +105,13 @@ ruleset manage_sensors{
     rule finish_add_subscription{
         select when wrangler subscription_added
         pre{
-            e = event:attrs().klog("Sub Added");
             Tx = event:attr("Tx").klog("Channel")
+            nm = event:attr("name").klog("Name")
         }
 
         always{
-            ent:sensor_list := sensors.put([Tx,"status"],"accepted")
+            ent:sensor_list := sensors().put(nm, {"eci":Tx,"status":"accepted"});
+            ent:channel_list := channels().put(Tx, nm)
         }
     }
 
