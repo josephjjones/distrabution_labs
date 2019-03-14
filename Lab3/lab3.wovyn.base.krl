@@ -4,10 +4,7 @@ ruleset wovyn_base{
         name "Lab 3 Wovyn"
         provides get_threshold
         use module sensor_profile
-        use module twilio.keys
-        use module twilio.methods alias twil
-            with account_sid = keys:twilio{"account_sid"}
-                 auth_token  = keys:twilio{"auth_token"}
+        use module io.picolabs.subscription alias Subscriptions
     }
  
     global{
@@ -68,7 +65,13 @@ ruleset wovyn_base{
 
     rule threshold_notification{
         select when wovyn threshold_violation
-        twil:send_sms(sensor_profile:getPhoneNumber()["number"], get_from(),
-            high_temp_message(event:attr("temperature"), event:attr("time")))
+            foreach Subscriptions:established().filter(
+                function(v){ v.get("Tx_role") == "sensor_manager" }).map(
+                function(v){ v.get("Tx") })
+                    setting(Tx)
+        event:send(
+            { "eci":Tx, "eid":"threshold",
+              "domain": "sensor", "type": "threshold_violation",
+              "attrs": event:attrs })
     }
 }
