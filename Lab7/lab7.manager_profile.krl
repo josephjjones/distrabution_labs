@@ -14,7 +14,10 @@ ruleset manager_profile{
         
         high_temp_message = function(temp, time){
             "At "+time+" temperature of "+temp.as("String")+" was read"
-        }
+        };
+        get_from = function(){
+            ent:from.defaultsTo("+12567332433")
+        };  
     }
 
     rule update_phone_number{
