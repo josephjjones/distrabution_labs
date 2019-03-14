@@ -108,7 +108,7 @@ ruleset manage_sensors{
         select when wrangler subscription_added
         pre{
             e = event:attrs().klog("Sub Added");
-            Tx = event:attr("Tx")
+            Tx = event:attr("Tx").klog("Channel")
         }
 
         always{
