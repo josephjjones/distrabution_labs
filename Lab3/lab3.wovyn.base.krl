@@ -70,8 +70,8 @@ ruleset wovyn_base{
                 function(v){ v.get("Tx") })
                     setting(Tx)
         event:send(
-            { "eci":Tx, "eid":"threshold",
-              "domain": "sensor", "type": "threshold_violation",
+            { "eci":Tx, "eid":"sensor",
+              "domain": "wovyn", "type": "threshold_violation",
               "attrs": event:attrs })
     }
 }
