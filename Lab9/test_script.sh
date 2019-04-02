@@ -1,7 +1,7 @@
 #!/bin/bash
 
 gossip_names=("Shadrach" "Joseph" "Angie" "Mom" "Megan" "Jonny" "Kattie" "Jacob")
-gossip_group=("eci1" "eci2" "eci3" "eci4" "5" "6" "7" "8")
+gossip_group=("SPkzGEeZqaaZPQwADbKF1T" "Y9WDYvCvCA6Ub6cnrBDuox" "EVWt6enfGRGz9yT2xmH8Ab" "SkFnPo91qF9LLoqrkq3x1g" "6rsqok79DL4aVwTjArncYK" "3vV4N13Ap2AYGwKjQ9xppw" "S2AP48WnFEmKFuRohoPt2R" "VyQ6xPohSZFKvoHZFzTb2Q")
 
 event_prefix="http://localhost:8080/sky/event/"
 query_prefix="http://localhost:8080/sky/cloud/"
@@ -39,17 +39,26 @@ send_fake_temperature(){
 echo "Reset gossip network"
 for sensor in "${gossip_group[@]}"
 do
-    curl -s --request POST "$event_prefix$sensor$eid/wrangler/uninstall_rulesets_requested?rids=gossip" > temp
+    curl -s --request POST "$event_previx$sensor$eid/gossip/destroy" > temp
 done
-for sensor in "${gossip_group[@]}"
-do
-    curl -s --request POST "$event_prefix$sensor$eid/wrangler/install_rulesets_requested?rids=gossip" > temp
-done
+sleep 5
+echo "Setup Network"
+
+curl -s --request POST "$event_previx${gossip_group[0]}$eid/gossip/add_peer?host=localhost&eci=${gossip_group[1]}" > temp
+curl -s --request POST "$event_previx${gossip_group[0]}$eid/gossip/add_peer?host=localhost&eci=${gossip_group[3]}" > temp
+curl -s --request POST "$event_previx${gossip_group[0]}$eid/gossip/add_peer?host=localhost&eci=${gossip_group[5]}" > temp
+curl -s --request POST "$event_previx${gossip_group[1]}$eid/gossip/add_peer?host=localhost&eci=${gossip_group[2]}" > temp
+curl -s --request POST "$event_previx${gossip_group[2]}$eid/gossip/add_peer?host=localhost&eci=${gossip_group[4]}" > temp
+curl -s --request POST "$event_previx${gossip_group[2]}$eid/gossip/add_peer?host=localhost&eci=${gossip_group[6]}" > temp
+curl -s --request POST "$event_previx${gossip_group[3]}$eid/gossip/add_peer?host=localhost&eci=${gossip_group[1]}" > temp
+curl -s --request POST "$event_previx${gossip_group[5]}$eid/gossip/add_peer?host=localhost&eci=${gossip_group[1]}" > temp
+curl -s --request POST "$event_previx${gossip_group[6]}$eid/gossip/add_peer?host=localhost&eci=${gossip_group[7]}" > temp
 
 index=1
 while 1
 do
     sleep 5
+    clear
     echo "Shadrach ======================================================="
     curl -s "$query_prefix${gossip_group[0]}$eid/gossip/get_gossip" > temp
     echo "Jacob =========================================================="

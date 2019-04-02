@@ -49,7 +49,8 @@ ruleset manage_sensors{
                                       "sensor_profile",
                                       "twilio.keys",
                                       "twilio.methods",
-                                      "io.picolabs.subscription"] }
+                                      "io.picolabs.subscription",
+                                      "gossip"] }
         }
     }
 

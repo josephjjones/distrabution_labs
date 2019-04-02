@@ -3,6 +3,7 @@ ruleset gossip{
   meta{
     author "Joseph Jones"
     provides get_gossip
+    use module io.picolabs.subscription alias subscriptions
     shares get_gossip
   }
 
@@ -270,4 +271,28 @@ ruleset gossip{
     }
   }
 
+  rule clear_everything{
+    select when gossip destroy
+
+    always{
+      ent:gossip_role := "gossip_partner"; //subscription role
+      ent:period := 5; //in seconds
+      ent:is_on  := True;
+      ent:sequence_number := 0;
+      ent:gossip_messages := {};
+      ent:peers := {};
+      raise gossip event "remove_peers"
+        attributes {}
+    }
+  }
+
+  rule clear_peers{
+    select when gossip remove_peers
+      foreach subsription:established().filter(function(v){v.get("Tx_role") == ent:gossip_role}) setting (peer)
+
+    always{
+      raise wrangler event subscription_cancellation
+        attributes {"Rx":peer{"Rx"},"Tx":peer{"Tx"}}
+    }
+  }
 }
