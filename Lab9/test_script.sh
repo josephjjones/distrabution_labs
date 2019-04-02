@@ -1,7 +1,7 @@
 #!/bin/bash
 
 gossip_names=("Shadrach" "Joseph" "Angie" "Mom" "Megan" "Jonny" "Kattie" "Jacob")
-gossip_group=("SPkzGEeZqaaZPQwADbKF1T" "Y9WDYvCvCA6Ub6cnrBDuox" "EVWt6enfGRGz9yT2xmH8Ab" "SkFnPo91qF9LLoqrkq3x1g" "6rsqok79DL4aVwTjArncYK" "3vV4N13Ap2AYGwKjQ9xppw" "S2AP48WnFEmKFuRohoPt2R" "VyQ6xPohSZFKvoHZFzTb2Q")
+gossip_group=("7jT5Lqy4SbfDf5FdcMgq5s" "FhjdoqykYuWfy3cMHBCfhH" "RViP2qRZbaNR4tSz5VZdXw" "76LCHQ4TGbvSdUhg6aZRu9" "FzUWc74HR1JZFqykP1S8Mt" "S4kw5DdWVFGcQXSzGvPs9Q" "Sas9JYSLPD29tM2AaLGEbi" "6tZYRzAjML4Wzv1FRUYjH2")
 
 event_prefix="http://localhost:8080/sky/event/"
 query_prefix="http://localhost:8080/sky/cloud/"
@@ -55,7 +55,7 @@ curl -s --request POST "$event_previx${gossip_group[5]}$eid/gossip/add_peer?host
 curl -s --request POST "$event_previx${gossip_group[6]}$eid/gossip/add_peer?host=localhost&eci=${gossip_group[7]}" > temp
 
 index=1
-while 1
+while true
 do
     sleep 5
     clear
@@ -64,5 +64,5 @@ do
     echo "Jacob =========================================================="
     curl -s "$query_prefix${gossip_group[7]}$eid/gossip/get_gossip" > temp
     send_fake_temperature "${gossip_group[$index]}"
-    index=`expr ( $index + 1 ) % 8`
+    index=`expr \(  $index + 1 \) % 8`
 done

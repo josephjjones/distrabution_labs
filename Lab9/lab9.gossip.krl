@@ -48,18 +48,18 @@ ruleset gossip{
       event:send({
         "eci":ent:peers{[peer,"eci"]},
         "host":ent:peers{[peer,"host"]},
-        "eid":meta:picoID,
+        "eid":meta:picoId,
         "domain":"gossip","type":"rumor",
-        "attrs": {"rumors":m,"sensorID":meta:picoID}
+        "attrs": {"rumors":m,"sensorID":meta:picoId}
         })
     }
     send_seen = defaction(peer, extra){
       event:send({
         "eci":ent:peers{[peer,"eci"]},
         "host":ent:peers{[peer,"host"]},
-        "eid":meta:picoID,
+        "eid":meta:picoId,
         "domain":"gossip","type":"seen",
-        "attrs": {"seen":seen_messages(),"sensorID":meta:picoID}
+        "attrs": {"seen":seen_messages(),"sensorID":meta:picoId}
         })
     }
 
@@ -195,20 +195,20 @@ ruleset gossip{
         new_rumor = 
             {"messageID": random:uuid(),
              "sequence": ent:sequence_number,
-             "sensorID": meta:picoID,
+             "sensorID": meta:picoId,
              "message": event:attrs}
-        in_gossip = gossip_messages() >< meta:picoID
+        in_gossip = gossip_messages() >< meta:picoId
     }
     if in_gossip
     then
         noop()
 
     fired{
-      ent:gossip_messages{[meta:picoID,"seen"]} := ent:sequence_number;
-      ent:gossip_messages{[meta:picoID,"messages"]} := 
-        ent:gossip_messages.get([meta:picoID,"messages"]).append(new_rumor)
+      ent:gossip_messages{[meta:picoId,"seen"]} := ent:sequence_number;
+      ent:gossip_messages{[meta:picoId,"messages"]} := 
+        ent:gossip_messages.get([meta:picoId,"messages"]).append(new_rumor)
     }else{
-        ent:gossip_messages{meta:picoID} :=
+        ent:gossip_messages{meta:picoId} :=
             {"seen":0, "messages":[new_rumor]}
     }finally{
       ent:sequence_number := sequence_number()+1
@@ -222,7 +222,7 @@ ruleset gossip{
     always{
       raise wrangler event "subscription"
         attributes{
-          "name":meta:picoID,
+          "name":meta:picoId,
           "Tx_host":event:attr("host"),
           "wellKnown_Tx":event:attr("eci"),
           "Rx_role":ent:gossip_role,
@@ -244,10 +244,10 @@ ruleset gossip{
     event:send({
         "eci"   : eci,
         "host"  : host,
-        "eid"   : meta:picoID,
+        "eid"   : meta:picoId,
         "domain": "gossip","type":"new_peer",
         "attrs" : {
-            "id"  :meta:picoID,
+            "id"  :meta:picoId,
             "eci" :event:attr("Rx"),
             "host":event:attr("Rx_host"),
             "seen":seen_messages()}
