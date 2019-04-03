@@ -2,19 +2,30 @@ ruleset gossip{
 
   meta{
     author "Joseph Jones"
-    provides get_gossip
-    use module io.picolabs.subscription alias subscriptions
-    shares get_gossip
+    provides get_gossip, get_peers
+    use module io.picolabs.subscription alias Subscriptions
+    shares get_gossip, get_peers
   }
 
   global{
 
     get_gossip = function(){
-        ent:gossip_messages.encode(2)
+      //just sequence numbers
+      ent:gossip_messages.map(function(v,k){
+        v.get("messages").map(function(v){v.get("sequence")}).encode()}).encode(8);
+      
+      //whole message
+      // ent:gossip_messages.map(function(v,k){v{"messages"}.encode()}).encode(8)
+        
+        
+    }
+    
+    get_peers = function(){
+        ent:peers.map(function(v,k){v.get("seen").encode()}).encode(8)
     }
 
     seen_messages = function(){
-      ent:gossip_meesages.map(function(v,k){
+      ent:gossip_messages.map(function(v,k){
         v.get("seen")
       })
     }
@@ -24,23 +35,42 @@ ruleset gossip{
       need = ent:peers.filter(function(v,k){
           their_seen = v.get("seen");
           they_need = my_seen.filter(function(v,k){
-            v > their_seen.get(k).defaultsTo(-1)});
-          (they_need => True | False)
+            (not v.isnull() => v > their_seen.get(k).defaultsTo(-1) | false)});
+          (they_need.length() => true | false)
         });
-      need = need.keys(); //get only the sensor id
-      need.index(random:integer(need.length()-1))
+      sensor = need.keys().klog("peers_that_need"); //get only the sensor id
+      (sensor.length() => sensor[random:integer(sensor.length()-1)] | false)
+    }
+    
+    random_peer = function(){
+      (ent:peers.length() => ent:peers.keys()[random:integer(ent:peers.length()-1)] | false)
     }
 
-    prepareMessage = function(peer){
-      their_seen = ent:peers.get([peer,"seen"]);
+    prepareAllMessages = function(their_seen){
       my_seen = seen_messages();
       need = my_seen.filter(
-               function(v,k){ v > their_seen.get(k).defaultsTo(-1) });
+               function(v,k){ v.as("Number") > their_seen{k}.defaultsTo(-1).as("Number") });
+      from = need.keys();
+      from.map(function(v){
+        last_seen = their_seen{v}.defaultsTo(-1).as("Number");
+        ent:gossip_messages.get([v,"messages"]).filter(function(v){
+              (v.length() => v.get("sequence").as("Number") > last_seen | false)
+          })
+      }).klog("all messages")
+    }
+    
+    prepareMessage = function(peer){
+      // all_rumors = prepareAllMessages(ent:peers.get([peer,"seen"])) //alt way decided against
+      
+      their_seen = ent:peers{[peer,"seen"]}.defaultsTo({});
+      my_seen = seen_messages();
+      need = my_seen.filter(
+               function(v,k){ v.as("Number") > their_seen{k}.defaultsTo(-1).as("Number") });
       k = need.keys();
-      from = k.index(random:integer(k.length()-1));
-      last_seen = their_seen.get(from);
-      gossip_messages().get([from,"messages"]).filter(function(v){
-            v.get("sequence") > last_seen
+      from = k[random:integer(k.length()-1)];
+      last_seen = their_seen{from}.defaultsTo(-1).as("Number");
+      ent:gossip_messages.get([from,"messages"]).filter(function(v){
+            (v.length() => v.get("sequence").as("Number") > last_seen | false)
         })
     }
 
@@ -50,16 +80,17 @@ ruleset gossip{
         "host":ent:peers{[peer,"host"]},
         "eid":meta:picoId,
         "domain":"gossip","type":"rumor",
-        "attrs": {"rumors":m,"sensorID":meta:picoId}
+        "attrs": {"rumors":m,"sensorID":meta:picoId}.klog("rumor attrs")
         })
     }
-    send_seen = defaction(peer, extra){
+    
+    send_seen = defaction(peer){
       event:send({
         "eci":ent:peers{[peer,"eci"]},
         "host":ent:peers{[peer,"host"]},
         "eid":meta:picoId,
         "domain":"gossip","type":"seen",
-        "attrs": {"seen":seen_messages(),"sensorID":meta:picoId}
+        "attrs": {"seen":seen_messages(),"sensorID":meta:picoId}.klog("seen attrs")
         })
     }
 
@@ -74,12 +105,8 @@ ruleset gossip{
         noop()
 
     fired{
-      ent:gossip_role := "gossip_partner"; //subscription role
-      ent:period := 5; //in seconds
-      ent:is_on  := True;
-      ent:sequence_number := 0;
-      ent:gossip_messages := {};
-      ent:peers := {};
+      raise gossip event "destroy"
+        attributes {}
     }finally{
       raise gossip event "heartbeat"
         attributes {}
@@ -89,49 +116,59 @@ ruleset gossip{
   rule gossip_heartbeat{
     select when gossip heartbeat
     pre{
-      peer = (ent:is_on => getPeer().klog("peer") | False);
-      action = (peer => send_rumors | send_seen) //could change to be random
-      m = (peer => prepareMessage(peer) | []);
-      from = (peer => m.index(0){"sensorID"} | "bogus");
-      last_seen = (peer => ent:peers{[peer,"seen",from]} | -1);
-      peer = (peer => peer | random_peer());
+      peer = (ent:is_on => getPeer() | false);
+      rumors = (peer => prepareMessage(peer) | []);
+      from = (peer => rumors[0]{"sensorID"} | null);
       last_seen =
-        m.map(function(v){v.get("sequence")})
-         .sort("numeric")
-         .reduce(function(a,b){(b==a+1 => b | a)},
-                 last_seen)
+        rumors.map(function(v){v.get("sequence")})
+              .sort("numeric")
+              .reduce(function(a,b){(b==a+1 => b | a)},
+                      ent:peers{[peer,"seen",from]}.defaultsTo(-1))
     }
-    if ent:is_on
+    if ent:is_on && peer
     then
-      action(peer, m);
+      send_rumors(peer, rumors);
 
     fired{
-      //make asumption until a seen message updates
       ent:peers{[peer,"seen",from]} := last_seen
+    }else{
+      raise gossip event "send_seen"
     }finally{
       schedule gossip event "heartbeat"
-        at time:add(time:now(), {"seconds": 5})
+        at time:add(time:now(), {"seconds": ent:period})
         attributes event:attrs
     }
+  }
+  
+  rule send_seen_set{
+    select when gossip send_seen
+    pre{
+      peer = random_peer();
+    }
+    if ent:is_on && peer
+    then
+      send_seen(peer);
   }
 
   rule gossip_message{
     select when gossip rumor
-        //where from_peer
+        where ent:is_on
         foreach event:attr("rumors") setting(rumor)
     pre{
         from = rumor{"sensorID"};
         is_old = ent:gossip_messages{[from,"messages"]}.reduce(
             function(a,b){a || (b{"messageID"} == rumor{"messageID"})},
-            False);
+            false);
+        messages = (ent:gossip_messages{[from,"messages"]} => 
+                      ent:gossip_messages.get([from,"messages"]).append(rumor) | 
+                      [rumor] )
     }
 
     if not is_old
     then noop()
 
     fired{
-      ent:gossip_messages{[from,"messages"]} := 
-        ent:gossip_messages{[from,"messages"]}.append(rumor)
+      ent:gossip_messages{[from,"messages"]} := messages
     }finally{
       raise gossip event "update"
         attributes {"sensor":from} on final
@@ -141,20 +178,24 @@ ruleset gossip{
 
   rule gossip_message_update{
     select when gossip rumor
-      where ent:peers >< event:attr("sensorID")
+      where ent:is_on && ent:peers >< event:attr("sensorID")
 
     pre{
       peer = event:attr("sensorID")
       m = event:attr("rumors")
-      from = m.index(0){"sensorID"} //origin of the rumors
+      from = m[0]{"sensorID"} //origin of the rumors
       last_seen = 
         m.map(function(v){v.get("sequence")})
          .sort("numeric")
          .reduce(function(a,b){(b==a+1 => b | a)},
-                 ent:peers{[peer,"seen",from]})
+                 ent:peers{[peer,"seen",from]}.defaultsTo(-1))
     }
+    
+    if ent:peers >< peer
+    then
+      noop()
 
-    always{
+    fired{
       ent:peers{[peer,"seen",from]} := last_seen
     }
   }
@@ -169,7 +210,7 @@ ruleset gossip{
                   .sort("numeric")
                   .reduce(
                       function(a,b){ (b == a+1 => b | a) },
-                      ent:gossip_messages{[from,"seen"]})
+                      ent:gossip_messages{[from,"seen"]}.defaultsTo(-1))
     }
 
     always{
@@ -177,15 +218,42 @@ ruleset gossip{
     }
   }
 
+//add functionality where all messages that you know are sent
   rule gossip_seen{
     select when gossip seen
-        where event:attr("sensorID") >< ent:peers
+        where ent:is_on && ent:peers >< event:attr("sensorID")
     pre{
         sensor = event:attr("sensorID")
+        rumors = prepareAllMessages(event:attr("seen"))
     }
 
     always{
-        ent:peers{[sensor,"seen"]} := event:attr("seen")
+        ent:peers{[sensor,"seen"]} := event:attr("seen");
+        raise gossip event "send_rumor_group"
+          attributes {"peer":sensor,"rumors":rumors}
+    }
+  }
+  
+  rule send_rumor_group{
+    select when gossip send_rumor_group
+      foreach event:attr("rumors") setting(rumors)
+    
+    pre{
+      peer = event:attr("peer");
+      from = rumors[0]{"sensorID"};
+      last_seen =
+        rumors.map(function(v){v.get("sequence")})
+         .sort("numeric")
+         .reduce(function(a,b){(b==a+1 => b | a)},
+                 ent:peers{[peer,"seen",from]}.defaultsTo(-1))
+    }
+    
+    if ent:is_on
+    then
+      send_rumors(peer, rumors)
+    
+    fired{
+      ent:peers{[peer,"seen",from]} := last_seen
     }
   }
 
@@ -197,7 +265,7 @@ ruleset gossip{
              "sequence": ent:sequence_number,
              "sensorID": meta:picoId,
              "message": event:attrs}
-        in_gossip = gossip_messages() >< meta:picoId
+        in_gossip = ent:gossip_messages >< meta:picoId
     }
     if in_gossip
     then
@@ -211,7 +279,20 @@ ruleset gossip{
         ent:gossip_messages{meta:picoId} :=
             {"seen":0, "messages":[new_rumor]}
     }finally{
-      ent:sequence_number := sequence_number()+1
+      ent:sequence_number := ent:sequence_number+1
+    }
+  }
+  
+  rule gossip_settings{
+    select when gossip settings
+    pre{
+      is_on = (event:attr("is_on") => event:attr("is_on") == "true" | ent:is_on);
+      period = (event:attr("period") => event:attr("period").as("Number") | ent:period)
+    }
+    
+    always{
+      ent:is_on := is_on;
+      ent:period := period
     }
   }
 
@@ -219,7 +300,7 @@ ruleset gossip{
     select when gossip add_peer
         where event:attr("eci") && event:attr("host")
 
-    always{
+    fired{
       raise wrangler event "subscription"
         attributes{
           "name":meta:picoId,
@@ -237,20 +318,20 @@ ruleset gossip{
         where event:attr("Rx_role") == ent:gossip_role
 
     pre{
-      eci = event:attr("Tx");
-      host = event:attr("Tx_host")
+      eci = event:attr("bus"){"Tx"};
+      host = event:attr("bus"){"Tx_host"}
     }
 
     event:send({
         "eci"   : eci,
         "host"  : host,
-        "eid"   : meta:picoId,
+        "eid"   : "gossip_ruleset",
         "domain": "gossip","type":"new_peer",
         "attrs" : {
             "id"  :meta:picoId,
-            "eci" :event:attr("Rx"),
-            "host":event:attr("Rx_host"),
-            "seen":seen_messages()}
+            "eci" :event:attr("bus"){"Rx"},
+            "host":meta:host,
+            "seen":seen_messages()}.klog("new peer attr")
         })
   }
 
@@ -262,10 +343,10 @@ ruleset gossip{
       newPeer = {
         "eci":event:attr("eci"),
         "host":event:attr("host"),
-        "seen":event:attr("seen").put("bogus",-1)
+        "seen":event:attr("seen")
         }
     }
-
+    
     always{
       ent:peers{sensorID} := newPeer
     }
@@ -274,10 +355,10 @@ ruleset gossip{
   rule clear_everything{
     select when gossip destroy
 
-    always{
+    fired{
       ent:gossip_role := "gossip_partner"; //subscription role
-      ent:period := 5; //in seconds
-      ent:is_on  := True;
+      ent:period := 2; //in seconds
+      ent:is_on  := true;
       ent:sequence_number := 0;
       ent:gossip_messages := {};
       ent:peers := {};
@@ -288,11 +369,20 @@ ruleset gossip{
 
   rule clear_peers{
     select when gossip remove_peers
-      foreach subsription:established().filter(function(v){v.get("Tx_role") == ent:gossip_role}) setting (peer)
+      foreach Subscriptions:established().filter(function(v){v.get("Tx_role") == ent:gossip_role}) setting (peer)
 
-    always{
-      raise wrangler event subscription_cancellation
+    fired{
+      raise wrangler event "subscription_cancellation"
         attributes {"Rx":peer{"Rx"},"Tx":peer{"Tx"}}
+    }
+  }
+  rule clear_nonpeers{
+    select when gossip remove_peers
+      foreach Subscriptions:outbound() setting(peer)
+
+    fired{
+      raise wrangler event "outbound_cancellation"
+        attributes {"Id":peer{"Id"}}
     }
   }
 }
